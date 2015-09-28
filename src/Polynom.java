@@ -1,5 +1,5 @@
 /**
- * Created by ulihtenshtein on 26.09.15.
+ * Created by oborovsky on 26.09.15.
  */
 import java.util.Scanner;
 import java.util.ArrayList;
