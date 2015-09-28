@@ -6,17 +6,19 @@ import java.util.ArrayList;
 
 public class Polynom implements IPolynom{
     private ArrayList<Double> mA;
-    private void resize(ArrayList<Double> a) {
-        int l0 = mA.size();
-        int l1 = a.size();
+    private void resize(ArrayList<Double> a1, ArrayList<Double> a2) {
+        int l0 = a1.size();
+        int l1 = a2.size();
+        int lmax = (l1 > l0) ? l1 : l0;
+        int lmin = (l1 > l0) ? l0 : l1;
         ArrayList<Double> t;
 
         if ( l1 > l0) {
-            t = mA;
+            t = a1;
         } else {
-            t = a;
+            t = a2;
         }
-        for (int i = l0; i < l1; i++) {
+        for (int i = lmin; i < lmax; i++) {
             t.add(0.0);
         }
     }
@@ -37,64 +39,73 @@ public class Polynom implements IPolynom{
     public ArrayList<Double> getCof() {
         return mA;
     }
-    public void add(Polynom p) {
-        resize(p.mA);
-        int l = mA.size();
+    public Polynom add(Polynom p) {
+        ArrayList<Double> src = new ArrayList<>(p.mA);
+        ArrayList<Double> dest = new ArrayList<>(mA);
+        resize(dest, src);
+        int l = dest.size();
         for (int i = 0; i < l; i++) {
-            mA.set(i, mA.get(i) + p.mA.get(i));
+            dest.set(i, dest.get(i) + src.get(i));
         }
+        return new Polynom(dest);
     }
-    public void mult(double k) {
-        for(int i = 0; i < mA.size(); i++) {
-            mA.set(i, mA.get(i) * k);
+    public Polynom mult(double k) {
+        ArrayList<Double> dest = new ArrayList<>(mA);
+        for(int i = 0; i < dest.size(); i++) {
+            dest.set(i, dest.get(i) * k);
         }
+        return new Polynom(dest);
     }
-    public void mult(Polynom p) {
-        int n = mA.size();
-        int m = p.mA.size();
-        resize(p.mA);
+    public Polynom mult(Polynom p) {
+        ArrayList<Double> a1 = new ArrayList<>(mA);
+        ArrayList<Double> a2 = new ArrayList<>(p.mA);
+        int n = a1.size();
+        int m = a2.size();
+        resize(a1, a2);
         int l = n * m - m - n + 3;
 
         ArrayList<Double> na = new ArrayList<>(l);
-        resize(p.mA, l);
-        resize(p.mA);
+        resize(a1, l);
+        resize(a2, l);
 
         for( int i = 0; i <= l - 1; i++) {
             double ci = 0;
             for( int j = 0; j <= i; j++) {
-                ci += mA.get(j) * p.mA.get(i - j);
+                ci += a1.get(j) * a2.get(i - j);
             }
             na.add(i, ci);
         }
-        mA = na;
+        return new Polynom(na);
     }
     public double square(double left, double right) {
-        Polynom tmp = new Polynom(mA);
-        tmp.integral(0.0);
-
+        Polynom tmp = integral(0.0);
         return tmp.result(right) - tmp.result(left);
     }
-    public void diff() {
-        for (int i = 1; i < mA.size(); i++) {
-            mA.set(i-1, i*mA.get(i));
+    public Polynom diff() {
+        ArrayList<Double> a = new ArrayList<>(mA);
+        for (int i = 1; i < a.size(); i++) {
+            a.set(i-1, i * a.get(i));
         }
-        mA.remove(mA.size() - 1);
-        mA.trimToSize();
+        a.remove(a.size() - 1);
+        a.trimToSize();
+        return new Polynom(a);
     }
-    public void integral(double c) {
-        if( mA.size() == 0 ) {
-            mA.add(c);
-            return;
+    public Polynom integral(double c) {
+        ArrayList<Double> a = new ArrayList<>(mA);
+        if( a.size() == 0 ) {
+            a.add(c);
+            return new Polynom(a);
         }
-        mA.add(0.0);
+        a.add(0.0);
         double t1 = 0.0;
-        double t2 = mA.get(0);
-        for(int i = 0; i < mA.size() - 1; i++) {
+        double t2 = a.get(0);
+        for(int i = 0; i < a.size() - 1; i++) {
             t1 = t2;
-            t2 = mA.get(i+1);
-            mA.set(i+1, t1/(i+1));
+            t2 = a.get(i+1);
+            a.set(i + 1, t1 / (i + 1));
         }
-        mA.set(0, c);
+        a.set(0, c);
+        return new Polynom(a);
     }
     public double result( double x) {
         if (mA.size() == 0) return 0.0;
@@ -125,20 +136,20 @@ public class Polynom implements IPolynom{
         p.out();
         System.out.print("p1: ");
         p1.out();
-        p.mult(2.0);
+        p = p.mult(2.0);
         System.out.print("p*2: ");
         p.out();
-        p.mult(p1);
+        p = p.mult(p1);
         System.out.print("p*p1: ");
         p.out();
-        p.add(p1);
-        System.out.print("p+p1: ");
-        p.out();
+        Polynom p2 =p.add(p1);
+        System.out.print("p2=p+p1: ");
+        p2.out();
         System.out.print("diff p: ");
-        p.diff();
+        p = p.diff();
         p.out();
         System.out.print("integral p: ");
-        p.integral(1.0);
+       p = p.integral(1.0);
         p.out();
         System.out.println("result on 0: " + p.result(0));
         System.out.println("square p 0 - 2: " + p.square(0, 2));
