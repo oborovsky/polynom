@@ -1,5 +1,5 @@
 /**
- * Created by ulihtenshtein on 26.09.15.
+ * Created by oborovsky on 26.09.15.
  */
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -77,9 +77,22 @@ public class Polynom implements IPolynom{
         }
         return new Polynom(na);
     }
-    public double square(double left, double right) {
+    public double squareA(double left, double right) {
         Polynom tmp = integral(0.0);
         return tmp.result(right) - tmp.result(left);
+    }
+    public double square(double left, double right) {
+        double a = left;
+        double b = right;
+        int n = 1000000;
+        double h = (b - a) / n;
+        double fi = 0;
+        double x = a + h;
+        for (int i = 1; i < n; i++) {
+            fi += result(x);
+            x += h;
+        }
+        return h * ( fi + (result(a) + result(b))/2);
     }
     public Polynom diff() {
         ArrayList<Double> a = new ArrayList<>(mA);
@@ -116,10 +129,33 @@ public class Polynom implements IPolynom{
         return r;
     }
     public void out() {
-       for(int i = 0; i < mA.size(); i++) {
+       char[] s = {'⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'};
+       int i = 0;
+       for(; i < mA.size() - 1; i++) {
            System.out.print(mA.get(i));
-           System.out.print(",");
+           if ( i != 0 ) {
+               System.out.print("x");
+               int d = 10;
+               while( i / d > 0 ) d *= 10;
+               do {
+                   int ii = (i%d)/(d/10);
+                   System.out.print(s[ii]);
+                   d /= 10;
+               } while ( d >= 10);
+           }
+           System.out.print("+ ");
        }
+        System.out.print(mA.get(i));
+        if ( i != 0 ) {
+            System.out.print("x");
+            int d = 10;
+            while( i / d > 0 ) d *= 10;
+            do {
+                int ii = (i%d)/(d/10);
+                System.out.print(s[ii]);
+                d /= 10;
+            } while ( d >= 10);
+        }
         System.out.println();
     }
     public static void main(String[] args) {
@@ -153,11 +189,21 @@ public class Polynom implements IPolynom{
         p.out();
         System.out.println("result on 0: " + p.result(0));
         System.out.println("square p 0 - 2: " + p.square(0, 2));
+        System.out.println("squareA p 0 - 2: " + p.squareA(0, 2));
         ArrayList<Double> a2 = new ArrayList<>();
         a2.add(0.0);
         a2.add(0.0);
         a2.add(1.0);
         Polynom p3 = new Polynom(a2);
         System.out.println("square p3 0 - 1: " + p3.square(0, 1));
+        System.out.println("squareA p3 0 - 1: " + p3.squareA(0, 1));
+        ArrayList<Double> a3 = new ArrayList<>();
+        for (int i = 0; i < 15; i++) a3.add((double)i);
+        Polynom p4 = new Polynom(a3);
+        System.out.print("p4: ");
+        p4.out();
+        ArrayList<Double> a4 = p4.getCof();
+        a4.set(0, 2.1);
+        p4.out();
     }
 }
