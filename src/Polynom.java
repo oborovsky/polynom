@@ -110,7 +110,7 @@ public class Polynom implements IPolynom{
             return new Polynom(a);
         }
         a.add(0.0);
-        double t1 = 0.0;
+        double t1;
         double t2 = a.get(0);
         for(int i = 0; i < a.size() - 1; i++) {
             t1 = t2;
@@ -129,7 +129,7 @@ public class Polynom implements IPolynom{
         return r;
     }
     public void out() {
-       char[] s = {'⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'};
+       char[] s = {'⁰','\u00b9','\u00b2','\u00b3','\u2074','\u2075','\u2076','\u2077','\u2078','\u2079'};
        int i = 0;
        for(; i < mA.size() - 1; i++) {
            System.out.print(mA.get(i));
